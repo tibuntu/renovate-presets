@@ -1,0 +1,13 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Update deps annotated with `# renovate: datasource=X depName=Y versioning=Z [registryUrl=…]`. arg0 = file pattern.",
+      "managerFilePatterns": ["{{arg0}}"],
+      "matchStrings": [
+        "[\"']?(?<currentValue>[^\\s\"'#:]+)[\"']?\\s+#\\s*(renovate:\\s+)?datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)\\s+versioning=(?<versioning>\\S+)(\\s+registryUrl=(?<registryUrl>\\S+))?"
+      ]
+    }
+  ]
+}

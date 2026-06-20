@@ -1,0 +1,10 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "packageRules": [
+    {
+      "description": "Force the semantic commit type for the matched packages. arg0 = package matcher (use * for all), arg1 = commit type.",
+      "matchPackageNames": ["{{arg0}}"],
+      "semanticCommitType": "{{arg1}}"
+    }
+  ]
+}
