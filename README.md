@@ -15,6 +15,7 @@ Parameterized presets take args in parentheses: `:name(arg0, arg1)`.
 | `groupDevDependencies` | Collapse all `devDependencies` bumps into one PR to cut tooling churn. | `"extends": ["github>tibuntu/renovate-presets:groupDevDependencies"]` |
 | `semanticCommitType` | Force a commit type for some/all packages. `arg0` = package matcher (`*` = all), `arg1` = commit type. | global: `:semanticCommitType(*, fix)` · one package: `:semanticCommitType(eslint, fix)` |
 | `regexAnnotations` | Custom manager for `# renovate: datasource=… depName=… versioning=… [registryUrl=…]` comment annotations. `arg0` = file pattern. | `:regexAnnotations(/.+\\.ya?ml$/)` |
+| `githubMatrixRunners` | Custom manager that pins/updates GitHub Actions runner versions declared in a build matrix (`strategy.matrix...runner: <os>-<version>`), which the built-in `github-runners` manager misses. | `:githubMatrixRunners` |
 
 ### `default`
 
@@ -87,6 +88,25 @@ than one distinct pattern, extend the preset more than once with different args.
   "extends": [
     "github>tibuntu/renovate-presets",
     "github>tibuntu/renovate-presets:regexAnnotations(/.+\\.ya?ml$/)"
+  ]
+}
+```
+
+### `githubMatrixRunners`
+
+**Use case:** keep GitHub Actions runner images pinned *and* auto-updated when they're chosen via a
+build matrix (e.g. a multi-arch job whose `runs-on: ${{ matrix.runner }}` reads from
+`strategy.matrix.include[].runner: ubuntu-24.04` / `ubuntu-24.04-arm`). Renovate's built-in
+`github-runners` manager only reads literal `runs-on:` values, so matrix-driven runners are
+invisible to it. This custom manager scans `.github/workflows/*.y{a,}ml` for `runner: <os>-<version>`
+(ubuntu/macos/windows, with an optional `-arm` suffix) and treats it as a `github-runners` dep.
+Takes no args — matrix runners only ever live in workflow files.
+
+```json
+{
+  "extends": [
+    "github>tibuntu/renovate-presets",
+    "github>tibuntu/renovate-presets:githubMatrixRunners"
   ]
 }
 ```

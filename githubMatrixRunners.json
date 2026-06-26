@@ -1,0 +1,14 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Track GitHub Actions runner versions declared in a build matrix (`strategy.matrix...runner: <os>-<version>`). The built-in github-runners manager only reads literal `runs-on:` values, so matrix-driven runners go unpinned and unupdated. Matches ubuntu/macos/windows; the optional `-arm` suffix is preserved on replacement.",
+      "managerFilePatterns": ["/^\\.github/workflows/[^/]+\\.ya?ml$/"],
+      "matchStrings": ["runner:\\s*(?<depName>ubuntu|macos|windows)-(?<currentValue>[\\d.]+)(?<suffix>-arm)?\\b"],
+      "datasourceTemplate": "github-runners",
+      "depTypeTemplate": "github-runner",
+      "autoReplaceStringTemplate": "runner: {{{depName}}}-{{{newValue}}}{{#if suffix}}{{{suffix}}}{{/if}}"
+    }
+  ]
+}
