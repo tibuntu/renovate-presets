@@ -1,0 +1,15 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "packageRules": [
+    {
+      "description": "Commit every GitHub Actions workflow dependency (action uses:, runner images, workflow Docker images) as `ci(deps):` instead of inheriting a release-triggering `fix:`. Must be extended AFTER semanticCommitType(*, fix): Renovate has no rule specificity, so the last matching packageRule wins.",
+      "matchManagers": ["github-actions"],
+      "semanticCommitType": "ci"
+    },
+    {
+      "description": "Also recolor runner-image bumps from the githubMatrixRunners custom manager (and built-in `runs-on:` runners) to `ci`. Matched via the shared `github-runners` datasource because the matrix manager is a custom.regex manager, not github-actions.",
+      "matchDatasources": ["github-runners"],
+      "semanticCommitType": "ci"
+    }
+  ]
+}

@@ -16,6 +16,7 @@ Parameterized presets take args in parentheses: `:name(arg0, arg1)`.
 | `semanticCommitType` | Force a commit type for some/all packages. `arg0` = package matcher (`*` = all), `arg1` = commit type. | global: `:semanticCommitType(*, fix)` · one package: `:semanticCommitType(eslint, fix)` |
 | `regexAnnotations` | Custom manager for `# renovate: datasource=… depName=… versioning=… [registryUrl=…]` comment annotations. `arg0` = file pattern. | `:regexAnnotations(/.+\\.ya?ml$/)` |
 | `githubMatrixRunners` | Custom manager that pins/updates GitHub Actions runner versions declared in a build matrix (`strategy.matrix...runner: <os>-<version>`), which the built-in `github-runners` manager misses. | `:githubMatrixRunners` |
+| `githubActionsCommitType` | Commit GitHub Actions workflow updates (actions, runner images, workflow Docker images) as `ci(deps):` instead of inheriting a release-triggering `fix:`. Extend **after** `semanticCommitType(*, fix)`. | `"extends": ["github>tibuntu/renovate-presets:githubActionsCommitType"]` |
 
 ### `default`
 
@@ -111,6 +112,35 @@ Takes no args — matrix runners only ever live in workflow files.
 }
 ```
 
+### `githubActionsCommitType`
+
+**Use case:** repos that force every bump to `fix:` via `semanticCommitType(*, fix)` (so app
+dependency bumps trigger a semantic-release patch) don't want their **CI** updates doing the same —
+bumping `actions/checkout`, a runner image, or a workflow's container image doesn't change the
+released product. This preset re-types every dependency in `.github/workflows` to `ci`, yielding
+`ci(deps): update actions/checkout action to v5`. Under semantic-release's Angular preset, `ci`
+does **not** trigger a release.
+
+It covers everything the built-in `github-actions` manager extracts (action `uses:`, runner images
+in `runs-on:`, Docker images in `container:`/`services:`/`uses: docker://`) plus runner-image bumps
+surfaced by the `githubMatrixRunners` custom manager (matched via the shared `github-runners`
+datasource).
+
+> **Ordering is required.** Renovate has no rule specificity — `packageRules` are evaluated in
+> `extends` order and the **last** matching rule wins. List this preset **after**
+> `semanticCommitType(*, fix)` so its rules override the global `*` → `fix` rule.
+
+```json
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "github>tibuntu/renovate-presets",
+    "github>tibuntu/renovate-presets:semanticCommitType(*, fix)",
+    "github>tibuntu/renovate-presets:githubActionsCommitType"
+  ]
+}
+```
+
 ## Composing presets
 
 A realistic config stacks the baseline with the building blocks it needs:
@@ -122,7 +152,8 @@ A realistic config stacks the baseline with the building blocks it needs:
     "github>tibuntu/renovate-presets",
     "github>tibuntu/renovate-presets:automerge",
     "github>tibuntu/renovate-presets:groupDevDependencies",
-    "github>tibuntu/renovate-presets:semanticCommitType(*, fix)"
+    "github>tibuntu/renovate-presets:semanticCommitType(*, fix)",
+    "github>tibuntu/renovate-presets:githubActionsCommitType"
   ],
   "packageRules": [
     { "matchPackageNames": ["some-fragile-dep"], "enabled": false }
