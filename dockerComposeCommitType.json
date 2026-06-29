@@ -1,0 +1,10 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "packageRules": [
+    {
+      "description": "Commit Docker Compose image bumps (e.g. the Postgres/Caddy services in docker-compose*.yml) as `build(deps):` instead of inheriting a release-triggering `fix:`. These images are local/reference infrastructure, not the shipped product, so they should not cut a release. Must be extended AFTER semanticCommitType(*, fix): Renovate has no rule specificity, so the last matching packageRule wins. Dockerfile base images are intentionally left on `fix:` because they are the shipped runtime.",
+      "matchManagers": ["docker-compose"],
+      "semanticCommitType": "build"
+    }
+  ]
+}

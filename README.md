@@ -17,6 +17,7 @@ Parameterized presets take args in parentheses: `:name(arg0, arg1)`.
 | `regexAnnotations` | Custom manager for `# renovate: datasource=… depName=… versioning=… [registryUrl=…]` comment annotations. `arg0` = file pattern. | `:regexAnnotations(/.+\\.ya?ml$/)` |
 | `githubMatrixRunners` | Custom manager that pins/updates GitHub Actions runner versions declared in a build matrix (`strategy.matrix...runner: <os>-<version>`), which the built-in `github-runners` manager misses. | `:githubMatrixRunners` |
 | `githubActionsCommitType` | Commit GitHub Actions workflow updates (actions, runner images, workflow Docker images) as `ci(deps):` instead of inheriting a release-triggering `fix:`. Extend **after** `semanticCommitType(*, fix)`. | `"extends": ["github>tibuntu/renovate-presets:githubActionsCommitType"]` |
+| `dockerComposeCommitType` | Commit Docker Compose image bumps (service images in `docker-compose*.yml`) as `build(deps):` instead of inheriting a release-triggering `fix:`. Extend **after** `semanticCommitType(*, fix)`. | `"extends": ["github>tibuntu/renovate-presets:dockerComposeCommitType"]` |
 
 ### `default`
 
@@ -141,6 +142,36 @@ datasource).
 }
 ```
 
+### `dockerComposeCommitType`
+
+**Use case:** repos that force every bump to `fix:` via `semanticCommitType(*, fix)` (so app
+dependency bumps trigger a semantic-release patch) don't want their **Docker Compose** image bumps
+doing the same — the Postgres/Caddy/etc. service images in a `docker-compose*.yml` are local or
+reference infrastructure, not the shipped product, so bumping them shouldn't cut a release. This
+preset re-types every dependency the built-in `docker-compose` manager extracts to `build`, yielding
+`build(deps): update postgres docker tag to v18`. Under semantic-release's Angular preset, `build`
+does **not** trigger a release.
+
+It deliberately covers only the `docker-compose` manager. Dockerfile base images (the `dockerfile`
+manager) are left on `fix:` because they are the shipped runtime, and workflow images are handled by
+`githubActionsCommitType` (the `github-actions` manager) — all three managers are disjoint, so the
+presets don't fight over the same dependency.
+
+> **Ordering is required.** Renovate has no rule specificity — `packageRules` are evaluated in
+> `extends` order and the **last** matching rule wins. List this preset **after**
+> `semanticCommitType(*, fix)` so its rules override the global `*` → `fix` rule.
+
+```json
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "github>tibuntu/renovate-presets",
+    "github>tibuntu/renovate-presets:semanticCommitType(*, fix)",
+    "github>tibuntu/renovate-presets:dockerComposeCommitType"
+  ]
+}
+```
+
 ## Composing presets
 
 A realistic config stacks the baseline with the building blocks it needs:
@@ -153,7 +184,8 @@ A realistic config stacks the baseline with the building blocks it needs:
     "github>tibuntu/renovate-presets:automerge",
     "github>tibuntu/renovate-presets:groupDevDependencies",
     "github>tibuntu/renovate-presets:semanticCommitType(*, fix)",
-    "github>tibuntu/renovate-presets:githubActionsCommitType"
+    "github>tibuntu/renovate-presets:githubActionsCommitType",
+    "github>tibuntu/renovate-presets:dockerComposeCommitType"
   ],
   "packageRules": [
     { "matchPackageNames": ["some-fragile-dep"], "enabled": false }
