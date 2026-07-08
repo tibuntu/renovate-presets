@@ -1,0 +1,10 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "packageRules": [
+    {
+      "description": "Commit devDependency bumps as `chore(deps):` instead of inheriting a release-triggering `fix:`. Dev tooling is not the shipped product, so it should not cut a release. Must be extended AFTER semanticCommitType(*, fix): Renovate has no rule specificity, so the last matching packageRule wins.",
+      "matchDepTypes": ["devDependencies"],
+      "semanticCommitType": "chore"
+    }
+  ]
+}
