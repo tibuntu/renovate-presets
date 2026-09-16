@@ -11,5 +11,6 @@
   ],
   "prFooter": "",
   "addLabels": ["{{{manager}}}", "{{{updateType}}}"],
+  "rebaseWhen": "conflicted",
   "semanticCommits": "enabled"
 }
