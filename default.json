@@ -10,6 +10,6 @@
      ":enablePreCommit"
   ],
   "prFooter": "",
-  "addLabels": ["manager::{{{manager}}}", "updateType::{{{updateType}}}"],
+  "addLabels": ["{{{manager}}}", "{{{updateType}}}"],
   "semanticCommits": "enabled"
 }
