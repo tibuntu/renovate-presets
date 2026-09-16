@@ -5,7 +5,8 @@
       "description": "Auto-merge non-major updates once required CI checks pass; major bumps stay manual.",
       "matchUpdateTypes": ["minor", "patch", "digest", "pin", "pinDigest", "lockFileMaintenance"],
       "automerge": true,
-      "automergeType": "pr"
+      "automergeType": "pr",
+      "platformAutomerge": false
     }
   ]
 }
