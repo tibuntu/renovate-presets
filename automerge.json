@@ -7,6 +7,12 @@
       "automerge": true,
       "automergeType": "pr",
       "platformAutomerge": false
+    },
+    {
+      "description": "0.x minors are breaking by semver convention, so they stay manual. Separate rule on purpose: adding matchCurrentVersion to the rule above would stop it matching lockFileMaintenance, which has no current version.",
+      "matchUpdateTypes": ["minor"],
+      "matchCurrentVersion": "/^0\\./",
+      "automerge": false
     }
   ]
 }
