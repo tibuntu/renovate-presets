@@ -6,7 +6,7 @@
       "description": "Update deps annotated with a trailing `# renovate: datasource=X depName=Y [versioning=Z] [registryUrl=…]` comment on the same line as the version. versioning defaults to the datasource's default. Whitespace is `[ \\t]`, not `\\s`, so a match can never span lines and pair a version with the next line's annotation. arg0 = file pattern.",
       "managerFilePatterns": ["{{arg0}}"],
       "matchStrings": [
-        "[\"']?(?<currentValue>[^\\s\"'#:]+)[\"']?[ \\t]+#[ \\t]*(renovate:[ \\t]+)?datasource=(?<datasource>\\S+)[ \\t]+depName=(?<depName>\\S+)([ \\t]+versioning=(?<versioning>\\S+))?([ \\t]+registryUrl=(?<registryUrl>\\S+))?"
+        "[\"']?(?<currentValue>[^\\s\"'#:=]+)[\"']?[ \\t]+#[ \\t]*(renovate:[ \\t]+)?datasource=(?<datasource>\\S+)[ \\t]+depName=(?<depName>\\S+)([ \\t]+versioning=(?<versioning>\\S+))?([ \\t]+registryUrl=(?<registryUrl>\\S+))?"
       ]
     }
   ]
