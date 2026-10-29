@@ -5,7 +5,7 @@
       "customType": "regex",
       "description": "Track GitHub Actions runner versions declared in a build matrix (`strategy.matrix...runner: <os>-<version>`). The built-in github-runners manager only reads literal `runs-on:` values, so matrix-driven runners go unpinned and unupdated. Matches ubuntu/macos/windows. Any suffix (`-arm`, `-large`, `-xlarge`) is part of currentValue so docker versioning only offers releases with the same suffix, e.g. macos-14-large -> macos-15-large, never macos-26-large.",
       "managerFilePatterns": ["/^\\.github/workflows/[^/]+\\.ya?ml$/"],
-      "matchStrings": ["runner:\\s*(?<depName>ubuntu|macos|windows)-(?<currentValue>[\\d.]+(?:-\\w+)?)"],
+      "matchStrings": ["runner:[ \\t]*[\"']?(?<depName>ubuntu|macos|windows)-(?<currentValue>[\\d.]+(?:-\\w+)?)"],
       "datasourceTemplate": "github-runners",
       "depTypeTemplate": "github-runner"
     }
