@@ -19,7 +19,11 @@
         "adrienverge/yamllint",
         "yamllint",
         "gitleaks/gitleaks",
-        "pre-commit/pre-commit-hooks"
+        "pre-commit/pre-commit-hooks",
+        "actions/configure-pages",
+        "actions/upload-pages-artifact",
+        "bandit",
+        "pycqa/bandit"
       ],
       "abandonmentThreshold": null
     }
