@@ -10,5 +10,18 @@
   "abandonmentThreshold": "6 months",
   "prFooter": "",
   "addLabels": ["{{{manager}}}", "{{{updateType}}}"],
-  "semanticCommits": "enabled"
+  "semanticCommits": "enabled",
+  "packageRules": [
+    {
+      "description": "Active projects with a slow release cadence, not abandoned",
+      "matchDepNames": [
+        "aquasecurity/trivy-action",
+        "adrienverge/yamllint",
+        "yamllint",
+        "gitleaks/gitleaks",
+        "pre-commit/pre-commit-hooks"
+      ],
+      "abandonmentThreshold": null
+    }
+  ]
 }
