@@ -11,7 +11,7 @@ Parameterized presets take args in parentheses: `:name(arg0, arg1)`.
 | Preset | Use case | Usage example |
 |---|---|---|
 | `default` | Baseline every repo should extend: `config:recommended`, dependency dashboard, no rate limiting, `group:recommended`, `renovate` + manager + update-type labels, Europe/Berlin timezone, pre-commit, empty PR footer, semantic commits, abandonment detection (`abandonments:recommended`, 1 year) with exemptions for slow-releasing tooling. | `"extends": ["github>tibuntu/renovate-presets"]` |
-| `automerge` | Auto-merge non-major updates (minor/patch/digest/pin/pinDigest/lockFileMaintenance) via PR once required checks pass; majors and 0.x minors stay manual. | `"extends": ["github>tibuntu/renovate-presets:automerge"]` |
+| `automerge` | Auto-merge non-major updates (minor/patch/digest/pin/pinDigest/lockFileMaintenance) via PR once required checks pass; majors and 0.x minors stay manual. npm and PyPI releases must be 3 days old first. | `"extends": ["github>tibuntu/renovate-presets:automerge"]` |
 | `groupDevDependencies` | Collapse all `devDependencies` bumps into one PR to cut tooling churn. | `"extends": ["github>tibuntu/renovate-presets:groupDevDependencies"]` |
 | `semanticCommitType` | Force a commit type for some/all packages. `arg0` = package matcher (`*` = all), `arg1` = commit type. | global: `:semanticCommitType(*, fix)` · one package: `:semanticCommitType(eslint, fix)` |
 | `regexAnnotations` | Custom manager for trailing `# renovate: datasource=… depName=… [versioning=…] [registryUrl=…]` comment annotations. `arg0` = file pattern. | `:regexAnnotations(/.+\\.ya?ml$/)` |
@@ -44,8 +44,15 @@ actions) from that check. Compose the other presets below for behaviour like aut
 
 **Use case:** opt in to hands-off merging of low-risk updates. Minor, patch, digest, pin and
 lock-file-maintenance updates are auto-merged through a PR after required CI passes; major bumps
-and minor bumps of `0.x` packages (breaking by semver convention) still require manual review.
-Repos that prefer to merge everything by hand simply don't extend it.
+and minor bumps of `0.x` packages (`0.x` or `v0.x`, breaking by semver convention) still require
+manual review. Repos that prefer to merge everything by hand simply don't extend it.
+
+It also extends `security:minimumReleaseAgeNpm` and `security:minimumReleaseAgePypi`: npm and PyPI
+updates (all update types, not only the auto-merged ones) are only raised once the release is
+3 days old, giving scanners time to catch a compromised package before it lands. Pending updates
+show up under "Pending Status Checks" on the dependency dashboard. Security updates bypass the gate.
+Lock file maintenance is **not** covered: the package manager picks the versions, so Renovate has no
+release timestamp to check. Other datasources (Docker, GitHub Actions, Helm, …) are not gated.
 
 ```json
 {

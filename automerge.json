@@ -1,5 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["security:minimumReleaseAgeNpm", "security:minimumReleaseAgePypi"],
   "packageRules": [
     {
       "description": "Auto-merge non-major updates once required CI checks pass; major bumps stay manual.",
