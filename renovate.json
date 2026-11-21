@@ -1,3 +1,7 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json"
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "github>tibuntu/renovate-presets",
+    "github>tibuntu/renovate-presets:automerge"
+  ]
 }
