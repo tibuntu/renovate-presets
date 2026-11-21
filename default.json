@@ -5,9 +5,9 @@
      ":disableRateLimiting",
      ":label(renovate)",
      ":timezone(Europe/Berlin)",
-     ":enablePreCommit"
+     ":enablePreCommit",
+     "abandonments:recommended"
   ],
-  "abandonmentThreshold": "6 months",
   "prFooter": "",
   "addLabels": ["{{{manager}}}", "{{{updateType}}}"],
   "semanticCommits": "enabled",

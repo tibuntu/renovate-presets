@@ -10,7 +10,7 @@ Parameterized presets take args in parentheses: `:name(arg0, arg1)`.
 
 | Preset | Use case | Usage example |
 |---|---|---|
-| `default` | Baseline every repo should extend: `config:recommended`, dependency dashboard, no rate limiting, `group:recommended`, `renovate` + manager + update-type labels, Europe/Berlin timezone, pre-commit, empty PR footer, semantic commits. | `"extends": ["github>tibuntu/renovate-presets"]` |
+| `default` | Baseline every repo should extend: `config:recommended`, dependency dashboard, no rate limiting, `group:recommended`, `renovate` + manager + update-type labels, Europe/Berlin timezone, pre-commit, empty PR footer, semantic commits, abandonment detection (`abandonments:recommended`, 1 year) with exemptions for slow-releasing tooling. | `"extends": ["github>tibuntu/renovate-presets"]` |
 | `automerge` | Auto-merge non-major updates (minor/patch/digest/pin/pinDigest/lockFileMaintenance) via PR once required checks pass; majors and 0.x minors stay manual. | `"extends": ["github>tibuntu/renovate-presets:automerge"]` |
 | `groupDevDependencies` | Collapse all `devDependencies` bumps into one PR to cut tooling churn. | `"extends": ["github>tibuntu/renovate-presets:groupDevDependencies"]` |
 | `semanticCommitType` | Force a commit type for some/all packages. `arg0` = package matcher (`*` = all), `arg1` = commit type. | global: `:semanticCommitType(*, fix)` · one package: `:semanticCommitType(eslint, fix)` |
@@ -26,9 +26,12 @@ Parameterized presets take args in parentheses: `:name(arg0, arg1)`.
 dependency dashboard, disables rate limiting, applies `group:recommended`, labels every PR with
 `renovate` plus the manager and update type, sets the Europe/Berlin timezone, enables the pre-commit
 manager, clears the PR footer and turns on semantic commit messages. Rebasing stays on Renovate's
-`auto` default: automerged branches rebase when behind, everything else only when conflicted. It
-intentionally sets **no** `packageRules`; compose the other presets below for behaviour like
-automerge or grouping.
+`auto` default: automerged branches rebase when behind, everything else only when conflicted.
+
+It also extends `abandonments:recommended`, which flags packages without a release for 1 year as
+abandoned (with upstream carve-outs such as `@types/*`). Its only own `packageRule` exempts active
+projects with a slow release cadence (e.g. `gitleaks`, `yamllint`, `bandit`, the GitHub Pages
+actions) from that check. Compose the other presets below for behaviour like automerge or grouping.
 
 ```json
 {
