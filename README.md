@@ -12,13 +12,13 @@ Parameterized presets take args in parentheses: `:name(arg0, arg1)`.
 |---|---|---|
 | `default` | Baseline every repo should extend: `config:recommended`, dependency dashboard, no rate limiting, `group:recommended`, `renovate` + manager + update-type labels, Europe/Berlin timezone, pre-commit, empty PR footer, semantic commits, abandonment detection (`abandonments:recommended`, 1 year) with exemptions for slow-releasing tooling. | `"extends": ["github>tibuntu/renovate-presets"]` |
 | `automerge` | Auto-merge non-major updates (minor/patch/digest/pin/pinDigest/lockFileMaintenance) via PR once required checks pass; majors and 0.x minors stay manual. npm and PyPI releases must be 3 days old first. | `"extends": ["github>tibuntu/renovate-presets:automerge"]` |
-| `groupDevDependencies` | Collapse all `devDependencies` bumps into one PR to cut tooling churn. | `"extends": ["github>tibuntu/renovate-presets:groupDevDependencies"]` |
+| `groupDevDependencies` | Collapse all dev dependency bumps (npm `devDependencies`, Python `dependency-groups` and uv/PDM dev-dependencies) into one PR to cut tooling churn. | `"extends": ["github>tibuntu/renovate-presets:groupDevDependencies"]` |
 | `semanticCommitType` | Force a commit type for some/all packages. `arg0` = package matcher (`*` = all), `arg1` = commit type. | global: `:semanticCommitType(*, fix)` · one package: `:semanticCommitType(eslint, fix)` |
 | `regexAnnotations` | Custom manager for trailing `# renovate: datasource=… depName=… [packageName=…] [versioning=…] [extractVersion=…] [registryUrl=…]` comment annotations. `arg0` = file pattern. | `:regexAnnotations(/.+\\.ya?ml$/)` |
 | `githubMatrixRunners` | Custom manager that pins/updates GitHub Actions runner versions declared in a build matrix (`strategy.matrix...runner: <os>-<version>`), which the built-in `github-runners` manager misses. | `:githubMatrixRunners` |
 | `githubActionsCommitType` | Commit GitHub Actions workflow updates (actions, runner images, workflow Docker images) as `ci(deps):` instead of inheriting a release-triggering `fix:`. Extend **after** `semanticCommitType(*, fix)`. | `"extends": ["github>tibuntu/renovate-presets:githubActionsCommitType"]` |
 | `dockerComposeCommitType` | Commit Docker Compose image bumps (service images in `docker-compose*.yml`) as `build(deps):` instead of inheriting a release-triggering `fix:`. Extend **after** `semanticCommitType(*, fix)`. | `"extends": ["github>tibuntu/renovate-presets:dockerComposeCommitType"]` |
-| `devDependenciesCommitType` | Commit `devDependencies` bumps as `chore(deps):` instead of inheriting a release-triggering `fix:`. Extend **after** `semanticCommitType(*, fix)`. | `"extends": ["github>tibuntu/renovate-presets:devDependenciesCommitType"]` |
+| `devDependenciesCommitType` | Commit dev dependency bumps (npm and Python, as in `groupDevDependencies`) as `chore(deps):` instead of inheriting a release-triggering `fix:`. Extend **after** `semanticCommitType(*, fix)`. | `"extends": ["github>tibuntu/renovate-presets:devDependenciesCommitType"]` |
 
 ### `default`
 
@@ -62,8 +62,15 @@ release timestamp to check. Other datasources (Docker, GitHub Actions, Helm, …
 
 ### `groupDevDependencies`
 
-**Use case:** for repos with many `devDependencies`, batch all of their updates into a single
-"dev dependencies" PR instead of one PR per package.
+**Use case:** for repos with many dev dependencies, batch all of their updates into a single
+"dev dependencies" PR instead of one PR per package. Matched dependency types:
+
+- `devDependencies` (npm, pnpm, Yarn)
+- `dependency-groups` (PEP 735 `[dependency-groups]` in `pyproject.toml`)
+- `tool.uv.dev-dependencies` (uv's legacy dev table) and `tool.pdm.dev-dependencies` (PDM)
+
+`[project.optional-dependencies]` is deliberately left out: extras ship to users, so they are not
+dev tooling.
 
 ```json
 {
@@ -210,8 +217,9 @@ presets don't fight over the same dependency.
 ### `devDependenciesCommitType`
 
 **Use case:** repos that force every bump to `fix:` via `semanticCommitType(*, fix)` don't want
-`devDependencies` bumps (linters, test runners, build tooling) to cut a release — dev tooling is not
-the shipped product. This preset re-types every `devDependencies` update to `chore`, yielding
+dev dependency bumps (linters, test runners, build tooling) to cut a release — dev tooling is not
+the shipped product. This preset re-types every dev dependency update to `chore` (the same
+dependency types as `groupDevDependencies`, npm and Python), yielding
 `chore(deps): update dependency eslint to v9`. Under semantic-release's Angular preset, `chore` does
 **not** trigger a release. Combine with `groupDevDependencies` to land them as one `chore(deps)` PR.
 
