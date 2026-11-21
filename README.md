@@ -14,7 +14,7 @@ Parameterized presets take args in parentheses: `:name(arg0, arg1)`.
 | `automerge` | Auto-merge non-major updates (minor/patch/digest/pin/pinDigest/lockFileMaintenance) via PR once required checks pass; majors and 0.x minors stay manual. npm and PyPI releases must be 3 days old first. | `"extends": ["github>tibuntu/renovate-presets:automerge"]` |
 | `groupDevDependencies` | Collapse all `devDependencies` bumps into one PR to cut tooling churn. | `"extends": ["github>tibuntu/renovate-presets:groupDevDependencies"]` |
 | `semanticCommitType` | Force a commit type for some/all packages. `arg0` = package matcher (`*` = all), `arg1` = commit type. | global: `:semanticCommitType(*, fix)` · one package: `:semanticCommitType(eslint, fix)` |
-| `regexAnnotations` | Custom manager for trailing `# renovate: datasource=… depName=… [versioning=…] [registryUrl=…]` comment annotations. `arg0` = file pattern. | `:regexAnnotations(/.+\\.ya?ml$/)` |
+| `regexAnnotations` | Custom manager for trailing `# renovate: datasource=… depName=… [packageName=…] [versioning=…] [extractVersion=…] [registryUrl=…]` comment annotations. `arg0` = file pattern. | `:regexAnnotations(/.+\\.ya?ml$/)` |
 | `githubMatrixRunners` | Custom manager that pins/updates GitHub Actions runner versions declared in a build matrix (`strategy.matrix...runner: <os>-<version>`), which the built-in `github-runners` manager misses. | `:githubMatrixRunners` |
 | `githubActionsCommitType` | Commit GitHub Actions workflow updates (actions, runner images, workflow Docker images) as `ci(deps):` instead of inheriting a release-triggering `fix:`. Extend **after** `semanticCommitType(*, fix)`. | `"extends": ["github>tibuntu/renovate-presets:githubActionsCommitType"]` |
 | `dockerComposeCommitType` | Commit Docker Compose image bumps (service images in `docker-compose*.yml`) as `build(deps):` instead of inheriting a release-triggering `fix:`. Extend **after** `semanticCommitType(*, fix)`. | `"extends": ["github>tibuntu/renovate-presets:dockerComposeCommitType"]` |
@@ -97,11 +97,26 @@ Scope it to a single package instead:
 ### `regexAnnotations`
 
 **Use case:** track versions that no built-in manager understands by annotating them inline with a
-trailing `# renovate: datasource=… depName=… [versioning=…] [registryUrl=…]` comment on the same
-line as the version, e.g. `kubectl: 1.29.0 # renovate: datasource=github-releases depName=kubernetes/kubernetes`.
-`versioning` defaults to the datasource's default. `arg0` is the file pattern to
-scan (a single regex such as `/.+\\.ya?ml$/` already covers both `.yaml` and `.yml`). To scan more
-than one distinct pattern, extend the preset more than once with different args.
+trailing `# renovate:` comment on the same line as the version, e.g.
+`kubectl: 1.29.0 # renovate: datasource=github-releases depName=kubernetes/kubernetes`.
+The `renovate:` prefix is optional. Supported keys, in this fixed order:
+
+| Key | Required | Meaning |
+|---|---|---|
+| `datasource` | yes | Renovate datasource, e.g. `docker`, `github-releases`, `helm` |
+| `depName` | yes | Dependency name shown in PRs (and looked up, unless `packageName` is set) |
+| `packageName` | no | Name to look up in the datasource when it differs from `depName`, e.g. `ghcr.io/org/app` |
+| `versioning` | no | Versioning scheme; defaults to the datasource's default |
+| `extractVersion` | no | Regex with a `version` group to extract the version from the upstream tag, e.g. `^v(?<version>\d+\.\d+\.\d+)\+k3s\d+$` |
+| `registryUrl` | no | Custom registry, e.g. a Helm repo URL |
+
+> **The order is fixed.** A key out of order, or an unknown key, is silently ignored together with
+> every key after it; before `depName` it drops the whole annotation. Check the dependency
+> dashboard after adding one.
+
+`arg0` is the file pattern to scan (a single regex such as `/.+\\.ya?ml$/` already covers both
+`.yaml` and `.yml`). To scan more than one distinct pattern, extend the preset more than once with
+different args.
 
 ```json
 {
