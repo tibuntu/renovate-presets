@@ -10,7 +10,7 @@ Parameterized presets take args in parentheses: `:name(arg0, arg1)`.
 
 | Preset | Use case | Usage example |
 |---|---|---|
-| `default` | Baseline every repo should extend: `config:recommended`, dependency dashboard, no rate limiting, `group:recommended`, `renovate` + manager + update-type labels, Europe/Berlin timezone, pre-commit, empty PR footer, semantic commits, abandonment detection (`abandonments:recommended`, 1 year) with exemptions for slow-releasing tooling. | `"extends": ["github>tibuntu/renovate-presets"]` |
+| `default` | Baseline every repo should extend: `config:recommended`, dependency dashboard, no rate limiting, `group:recommended`, `renovate` + manager + update-type labels, Europe/Berlin timezone, pre-commit, empty PR footer, semantic commits, abandonment detection (`abandonments:recommended`, 1 year) with exemptions for slow-releasing tooling, GitHub Actions pinned to commit digests. | `"extends": ["github>tibuntu/renovate-presets"]` |
 | `automerge` | Auto-merge non-major updates (minor/patch/digest/pin/pinDigest/lockFileMaintenance) via PR once required checks pass; majors and 0.x minors stay manual. npm and PyPI releases must be 3 days old first. | `"extends": ["github>tibuntu/renovate-presets:automerge"]` |
 | `groupDevDependencies` | Collapse all dev dependency bumps (npm `devDependencies`, Python `dependency-groups` and uv/PDM dev-dependencies) into one PR to cut tooling churn. | `"extends": ["github>tibuntu/renovate-presets:groupDevDependencies"]` |
 | `semanticCommitType` | Force a commit type for some/all packages. `arg0` = package matcher (`*` = all), `arg1` = commit type. | global: `:semanticCommitType(*, fix)` · one package: `:semanticCommitType(eslint, fix)` |
@@ -31,7 +31,15 @@ manager, clears the PR footer and turns on semantic commit messages. Rebasing st
 It also extends `abandonments:recommended`, which flags packages without a release for 1 year as
 abandoned (with upstream carve-outs such as `@types/*`). Its only own `packageRule` exempts active
 projects with a slow release cadence (e.g. `gitleaks`, `yamllint`, `bandit`, the GitHub Pages
-actions) from that check. Compose the other presets below for behaviour like automerge or grouping.
+actions) from that check.
+
+GitHub Actions and reusable workflows are pinned to commit SHAs (`helpers:pinGitHubActionDigests`),
+keeping the tag as a comment: `uses: actions/checkout@<sha> # v7`. A moved or hijacked tag can then
+no longer change what a workflow runs. Expect one pin PR per repo on first run, then digest updates
+alongside version updates; with `automerge`, both merge on their own. Workflow container images are
+not pinned.
+
+Compose the other presets below for behaviour like automerge or grouping.
 
 ```json
 {

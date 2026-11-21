@@ -6,7 +6,8 @@
      ":label(renovate)",
      ":timezone(Europe/Berlin)",
      ":enablePreCommit",
-     "abandonments:recommended"
+     "abandonments:recommended",
+     "helpers:pinGitHubActionDigests"
   ],
   "prFooter": "",
   "addLabels": ["{{{manager}}}", "{{{updateType}}}"],
